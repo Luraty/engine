@@ -161,11 +161,13 @@ See [docs/guides/adding-a-language.md](docs/guides/adding-a-language.md).
 
 ## Distribution
 
-`private: true`, consumed as **TypeScript source** via `file:../engine`. No build in the daily loop.
+**Published to npm as `@luraty/engine`, public, MIT.** Consumers install it from npm.
 
-`npm run build` (tsdown → ESM + `.d.mts`) exists only so the _published_ shape can be checked;
-`publishConfig` swaps `main`/`types`/`exports` to `dist/` at publish time, so local source
-consumption is unaffected. `npm run check:publish` builds and runs publint.
+`main`/`types`/`exports` point at **`dist/`** (tsdown → ESM + `.d.mts`), and `prepack` builds it.
+⚠️ **0.5.0 pointed them at `src/index.ts` and relied on `publishConfig` to swap in `dist/` — npm
+ignores that (it is a pnpm/yarn feature), so plain Node could not import the package.** Bundlers that
+compile TypeScript hid it. `tests/boundary.test.ts` pins the entries, and `npm run check:publish`
+builds, runs publint, and imports the package in Node.
 
 Versioning is **changesets**, not semantic-release — "is this breaking?" is a judgement about a
 contract, not a lookup on a commit prefix. ⚠️ `changeset version` bumps `package.json`, and

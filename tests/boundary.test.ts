@@ -27,8 +27,10 @@ const pkg = pkgJson as unknown as {
   version: string;
   private?: boolean;
   license?: string;
-  publishConfig?: { access?: string };
-  exports: Record<string, unknown>;
+  publishConfig?: { access?: string; main?: string; exports?: unknown };
+  main?: string;
+  types?: string;
+  exports: Record<string, { types?: string; import?: string } | string>;
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
@@ -159,6 +161,21 @@ describe('engine boundary', () => {
     // "./testing" subpath for the simulation harness — if the harness cannot work through the
     // barrel, the barrel is wrong.
     expect(Object.keys(pkg.exports)).toEqual(['.']);
+  });
+
+  // ⚠️ **0.5.0 SHIPPED ITS TYPESCRIPT SOURCE AS THE ENTRY POINT, AND ONLY PLAIN NODE COULD TELL.**
+  // `main`/`exports` pointed at `src/index.ts` and `publishConfig` was meant to swap them for `dist/`
+  // at publish time — but that swap is a pnpm/yarn feature, and **npm ignores it**. Bundlers that
+  // compile TypeScript (Next, Vitest) worked, so every consumer this repo had was green; `node`
+  // refuses to strip types under `node_modules` and threw on import. publint read the local manifest
+  // and passed too. The entry points are compiled output, in the manifest itself, full stop.
+  it('points every entry at compiled output, never TypeScript source', () => {
+    expect(pkg.main).toBe('./dist/index.mjs');
+    expect(pkg.types).toBe('./dist/index.d.mts');
+    expect(pkg.exports['.']).toEqual({ types: './dist/index.d.mts', import: './dist/index.mjs' });
+    // Anything left here is a swap npm will silently not perform.
+    expect(pkg.publishConfig?.main).toBeUndefined();
+    expect(pkg.publishConfig?.exports).toBeUndefined();
   });
 
   it('keeps ENGINE_API_VERSION honest', () => {

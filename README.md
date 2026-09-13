@@ -146,6 +146,6 @@ npm run check    # format + typecheck + lint + test — the whole gate
 git submodule add https://github.com/younissk/luraty-engine.git engine
 ```
 
-Then link it from the consuming app with `"@luraty/engine": "file:../engine"`. Do **not** put the
+Then install it from npm with `npm install @luraty/engine`, or link a local checkout with `"@luraty/engine": "file:../engine"`. Do **not** put the
 two in an npm workspace — hoisting would let `react-native` resolve from inside the engine and
 silently destroy the boundary this package is built around.
