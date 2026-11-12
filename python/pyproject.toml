@@ -1,0 +1,26 @@
+[project]
+name = "luraty-engine"
+version = "0.6.0"
+description = "Python port of @luraty/engine: the learner model, language packs and coverage."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.13"
+dependencies = ["fsrs>=6.3,<7"]
+
+[project.urls]
+Repository = "https://github.com/Luraty/engine"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "luraty_engine"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]

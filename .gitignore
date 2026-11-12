@@ -7,3 +7,9 @@ coverage/
 reports/
 .stryker-tmp/
 .hermes/
+
+# Python port
+python/.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/

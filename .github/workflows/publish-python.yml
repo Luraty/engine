@@ -1,0 +1,41 @@
+name: Publish Python package
+
+# Publishes python/ to PyPI as `luraty-engine` when a `py-v*` tag is pushed (e.g. py-v0.6.0).
+# Uses PyPI Trusted Publishing: no token is stored anywhere. One-time setup on pypi.org:
+# add a pending publisher for owner `Luraty`, repo `engine`, workflow `publish-python.yml`,
+# environment `pypi`. The tag must match `version` in python/pyproject.toml.
+
+on:
+  push:
+    tags: ['py-v*']
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Check the tag matches the package version
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
+          test "py-v$version" = "$GITHUB_REF_NAME"
+
+      - name: Test
+        run: uv run --python 3.13 pytest -q
+
+      - name: Build
+        run: uv build
+
+      - name: Publish
+        run: uv publish
